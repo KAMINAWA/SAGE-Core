@@ -1,25 +1,43 @@
-name: Compile S.A.G.E. APK
+name: Compile SAGE APK
+
 on:
   push:
-      branches: [ "main" ]
-      jobs:
-        build:
-            runs-on: ubuntu-latest
-                steps:
-                    - uses: actions/checkout@v3
-                        - uses: actions/setup-node@v3
-                              with: { node-version: '18' }
-                                  - run: |
-                                          npm install
-                                                  npx cap sync android
-                                                      - uses: actions/setup-java@v3
-                                                            with: { java-version: '17', distribution: 'temurin' }
-                                                                - run: chmod +x gradlew
-                                                                      working-directory: ./android
-                                                                          - run: ./gradlew assembleDebug
-                                                                                working-directory: ./android
-                                                                                    - uses: actions/upload-artifact@v3
-                                                                                          with:
-                                                                                                  name: SAGE-Core-APK
-                                                                                                          path: android/app/build/outputs/apk/debug/app-debug.apk
-                                                                                                          
+      branches:
+            - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install and Sync
+        run: |
+          npm install
+          npx cap sync android
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Make gradlew executable
+        working-directory: ./android
+        run: chmod +x gradlew
+
+      - name: Build APK
+        working-directory: ./android
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: SAGE-Core-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
