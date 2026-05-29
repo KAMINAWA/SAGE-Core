@@ -6,11 +6,10 @@
 
     <application
         android:name=".MainApplication"
-        android:label="S.A.G.E."
-        android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:allowBackup="true"
-        android:theme="@style/AppTheme">
+    android:label="S.A.G.E."
+    android:icon="@mipmap/ic_launcher"
+    android:allowBackup="true"
+    android:theme="@style/AppTheme">
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
             android:name=".MainActivity"
