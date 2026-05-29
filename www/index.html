@@ -2,28 +2,359 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-            <title>S.A.G.E. Core</title>
-                <script src="https://cdn.tailwindcss.com"></script>
-                    <style>
-                            body { background-color: #050505; color: #00ffcc; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
-                                    .glow-text { text-shadow: 0 0 10px rgba(0, 255, 204, 0.7); }
-                                            .sage-ring { width: 150px; height: 150px; border-radius: 50%; border: 2px solid #00aaff; box-shadow: 0 0 20px rgba(0, 170, 255, 0.5); display: flex; align-items: center; justify-content: center; }
-                                                    .terminal { background: rgba(0, 20, 15, 0.8); border: 1px solid #004433; box-shadow: inset 0 0 10px #000; }
-                                                        </style>
-                                                        </head>
-                                                        <body class="h-screen w-screen flex flex-col items-center justify-between p-4">
-                                                            <header class="w-full text-center py-4 border-b border-[#004433]">
-                                                                    <h1 class="text-3xl font-bold tracking-widest glow-text">S.A.G.E.</h1>
-                                                                        </header>
-                                                                            <div class="flex-1 flex items-center justify-center w-full my-6">
-                                                                                    <div id="sage-core" class="sage-ring">
-                                                                                                <span id="core-status" class="block text-sm font-bold tracking-wider text-[#00aaff]">STANDBY</span>
-                                                                                                        </div>
-                                                                                                            </div>
-                                                                                                                <div class="terminal w-full max-w-md h-64 rounded-lg p-3 overflow-y-auto flex flex-col justify-end mb-4">
-                                                                                                                        <div id="log-container" class="text-xs space-y-2">> System Ready.</div>
-                                                                                                                            </div>
-                                                                                                                            </body>
-                                                                                                                            </html>
-                                                                                                                            
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>S.A.G.E. Interface</title>
+    <style>
+        /* --- GLOBAL VARIABLES & THEME --- */
+        :root {
+            --theme-color: #2980b9; /* Defaults to standby color */
+        }
+
+        /* --- GLOBAL STYLES & BACKGROUND --- */
+        body {
+            background-color: #000000 !important; 
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 40 0 L 0 0 0 40' fill='none' stroke='%230f2547' stroke-width='1' stroke-dasharray='4 4'/%3E%3C/svg%3E");
+            color: #00ffcc;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        /* --- HEADER SECTION --- */
+        header {
+            margin-top: 40px;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .glow-text {
+            font-size: 2.5rem;
+            letter-spacing: 5px;
+            margin: 0;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5), 0 0 20px rgba(0, 255, 204, 0.3);
+        }
+
+        .status-header {
+            font-size: 0.8rem;
+            color: #4a756e;
+            margin-top: 5px;
+            letter-spacing: 2px;
+        }
+
+        /* --- CENTRAL RING (THE EYE) --- */
+        main {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .status-ring {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            transition: all 0.4s ease;
+            overflow: hidden; 
+            color: var(--theme-color);
+            position: relative;
+            background-color: #010308;
+        }
+
+        /* --- OVER-PIXELATED TEXTURE OVERLAYS --- */
+        .pixel-mask {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,0,0,0.9) 3px, transparent 3px),
+                linear-gradient(90deg, rgba(0,0,0,0.9) 3px, transparent 3px);
+            background-size: 6px 6px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .scanlines {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(255,255,255,0) 50%, rgba(255,255,255,0.08) 50%);
+            background-size: 100% 8px;
+            animation: scanline-scroll 1s linear infinite;
+            z-index: 11;
+            pointer-events: none;
+        }
+
+        /* DETAILED FACE COMPONENTS */
+        .face-container {
+            width: 80%;
+            height: 70%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 5;
+            padding-top: 10px;
+        }
+
+        .brows-row {
+            width: 80%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: -15px;
+        }
+
+        .brow {
+            width: 30px;
+            height: 8px;
+            background-color: var(--theme-color);
+            transition: all 0.2s steps(4, end);
+        }
+
+        .eyes-row {
+            width: 90%;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .eye {
+            width: 36px;
+            height: 28px;
+            border: 6px solid var(--theme-color);
+            position: relative;
+            transition: all 0.2s steps(3, end);
+            box-sizing: border-box;
+        }
+
+        .eye-inner {
+            width: 12px;
+            height: 12px;
+            background-color: var(--theme-color);
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.2s steps(2, end);
+        }
+
+        .mouth {
+            width: 70px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .mouth-wave {
+            width: 100%;
+            height: 6px;
+            background-color: var(--theme-color);
+            transition: all 0.2s steps(3, end);
+        }
+
+        /* --- STATE LOGIC --- */
+        .standby {
+            --theme-color: #2980b9;
+            border: 2px solid #1a5276;
+            box-shadow: 0 0 30px rgba(26, 82, 118, 0.3);
+        }
+        .standby .face-container { animation: calm-pulse 3s infinite steps(4, end); }
+        .standby .brow { opacity: 0.3; transform: translateY(5px); }
+        .standby .eye { height: 12px; border-width: 4px; }
+        .standby .eye-inner { opacity: 0; }
+        .standby .mouth-wave { width: 40px; height: 4px; }
+
+        .active {
+            --theme-color: #00ffcc;
+            border: 4px dashed #00ffcc; 
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.5), inset 0 0 15px rgba(0, 255, 204, 0.2);
+            animation: spin 4s linear infinite; 
+        }
+        .active .face-container { animation: counter-spin-face 4s linear infinite, active-pulse 1.5s infinite steps(3, end); }
+        .active .brow { transform: translateY(-4px); }
+        .active .mouth-wave { animation: digital-eq 1s infinite steps(5, end); }
+
+        .processing {
+            --theme-color: #f39c12;
+            border: 2px solid #f39c12;
+            box-shadow: 0 0 40px rgba(243, 156, 18, 0.6);
+            border-top-color: transparent; 
+            animation: spin 1s linear infinite;
+        }
+        .processing .face-container { animation: counter-spin-face 1s linear infinite, thinking-highlight 0.3s forwards; }
+        .processing #brow-left { transform: rotate(15deg) translateY(4px); }
+        .processing #brow-right { transform: rotate(-15deg) translateY(4px); }
+        .processing .eye { height: 16px; width: 40px; }
+        .processing .eye-inner { width: 18px; }
+        .processing .mouth-wave { animation: fast-digital-eq 0.3s infinite steps(3, end); }
+
+        .halting {
+            --theme-color: #e74c3c;
+            border: 2px solid #e74c3c;
+            box-shadow: 0 0 40px rgba(231, 76, 60, 0.7);
+        }
+        .halting .face-container { animation: warning-highlight 0.1s infinite alternate; }
+        .halting #brow-left { transform: rotate(-20deg) translateY(-2px); }
+        .halting #brow-right { transform: rotate(20deg) translateY(-2px); }
+        .halting .eye { width: 44px; height: 36px; border-style: dashed; }
+        .halting .mouth-wave { animation: chaotic-break 0.1s infinite steps(2, end); }
+
+        /* --- TERMINAL SECTION --- */
+        .terminal-container {
+            width: 90%;
+            max-width: 400px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .terminal {
+            background-color: rgba(0, 10, 20, 0.85);
+            border: 1px solid #1a3c34;
+            border-radius: 8px;
+            height: 200px;
+            padding: 15px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #33ffaa;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+            scrollbar-width: thin;
+            scrollbar-color: #00ffcc transparent;
+        }
+
+        /* Animations */
+        @keyframes scanline-scroll { 0% { background-position: 0 0; } 100% { background-position: 0 8px; } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes counter-spin-face { 100% { transform: rotate(-360deg); } }
+        @keyframes calm-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 0.9; } }
+        @keyframes active-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        @keyframes thinking-highlight { 100% { color: #f39c12; } }
+        @keyframes warning-highlight { 0%, 100% { color: #e74c3c; } 50% { color: #c0392b; transform: translate(2px, -2px); } }
+        
+        @keyframes digital-eq { 0%, 100% { height: 6px; width: 60px; } 50% { height: 18px; width: 40px; } }
+        @keyframes fast-digital-eq { 0%, 100% { height: 6px; width: 70px; } 50% { height: 24px; width: 50px; } }
+        @keyframes chaotic-break { 0% { height: 6px; width: 20px; transform: translateX(-10px); } 50% { height: 24px; width: 70px; transform: translateX(10px); } 100% { height: 12px; width: 40px; transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 class="glow-text">S.A.G.E.</h1>
+        <div class="status-header">SYSTEM CORE // V1.0</div>
+    </header>
+
+    <main>
+        <div class="status-ring standby" id="core-ring">
+            <div class="pixel-mask"></div>
+            <div class="scanlines"></div>
+
+            <div class="face-container">
+                <div class="brows-row">
+                    <div class="brow" id="brow-left"></div>
+                    <div class="brow" id="brow-right"></div>
+                </div>
+                <div class="eyes-row">
+                    <div class="eye">
+                        <div class="eye-inner"></div>
+                    </div>
+                    <div class="eye">
+                        <div class="eye-inner"></div>
+                    </div>
+                </div>
+                <div class="mouth">
+                    <div class="mouth-wave"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="terminal-container">
+        <div class="terminal" id="terminal">
+            > System Ready. Boot sequence complete.<br>
+            > Background voice loop active.<br>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const terminal = document.getElementById('terminal');
+            const ring = document.getElementById('core-ring');
+
+            function logToTerminal(text) {
+                terminal.innerHTML += `> ${text}<br>`;
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+
+            function setUIState(state) {
+                ring.className = 'status-ring';
+                ring.classList.add(state);
+            }
+
+            // --- NATIVE VOICE COMMAND BRIDGE ---
+            const cap = window.Capacitor;
+            const SAGESystem = (cap && cap.Plugins) ? cap.Plugins.SAGESystem : null;
+
+            if (SAGESystem) {
+                logToTerminal("Connecting to Native Engine...");
+                setUIState('active'); // Start listening
+                
+                SAGESystem.startSAGEVoice();
+                logToTerminal("Voice Engine Online. Speak your command.");
+
+                SAGESystem.addListener('onVoiceCommand', function(data) {
+                    const command = data.command.toLowerCase();
+                    logToTerminal(`<b>User:</b> ${command}`);
+
+                    if (command.includes('open') || command.includes('launch')) {
+                        const appName = command.replace('open', '').replace('launch', '').trim();
+                        setUIState('processing');
+                        logToTerminal(`<i>Executing: Launch ${appName.toUpperCase()}</i>`);
+                        
+                        SAGESystem.openApplication({ appName: appName });
+                        setTimeout(function() { setUIState('active'); }, 2000);
+                    } 
+                    else if (command.includes('lock screen') || command.includes('lock phone')) {
+                        setUIState('processing');
+                        logToTerminal("<i>Executing: System Lock</i>");
+                        SAGESystem.sendOfflineCommand({ type: 'lock_screen' });
+                        setTimeout(function() { setUIState('active'); }, 1000);
+                    }
+                    else if (command.includes('stop') || command.includes('abort') || command.includes('cancel')) {
+                        setUIState('halting');
+                        logToTerminal("<span style='color:#e74c3c;'>System: Task aborted by user.</span>");
+                        SAGESystem.abortCurrentTask();
+                        setTimeout(function() { setUIState('active'); }, 1500); // Resume listening after abort
+                    }
+                    else if (command.includes('shutdown') || command.includes('quit')) {
+                        setUIState('halting');
+                        logToTerminal("<span style='color:#e74c3c;'>System: Initiating Shutdown.</span>");
+                        SAGESystem.speak({ text: "Shutting down." });
+                        setTimeout(function() { SAGESystem.quitSystem(); }, 1500); 
+                    }
+                    else {
+                        setUIState('active');
+                        logToTerminal(`System: Awaiting executable command.`);
+                        SAGESystem.speak({ text: "Command received: " + command });
+                    }
+                });
+            } else {
+                setUIState('halting');
+                logToTerminal("<span style='color:#e74c3c;'>CRITICAL ERROR: Native Engine Not Found. Run via APK.</span>");
+            }
+        });
+    </script>
+</body>
+</html>
