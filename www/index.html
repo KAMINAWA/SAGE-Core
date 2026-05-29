@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+            <title>S.A.G.E. Core</title>
+                <script src="https://cdn.tailwindcss.com"></script>
+                    <style>
+                            body { background-color: #050505; color: #00ffcc; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
+                                    .glow-text { text-shadow: 0 0 10px rgba(0, 255, 204, 0.7); }
+                                            .sage-ring { width: 150px; height: 150px; border-radius: 50%; border: 2px solid #00aaff; box-shadow: 0 0 20px rgba(0, 170, 255, 0.5); display: flex; align-items: center; justify-content: center; }
+                                                    .terminal { background: rgba(0, 20, 15, 0.8); border: 1px solid #004433; box-shadow: inset 0 0 10px #000; }
+                                                        </style>
+                                                        </head>
+                                                        <body class="h-screen w-screen flex flex-col items-center justify-between p-4">
+                                                            <header class="w-full text-center py-4 border-b border-[#004433]">
+                                                                    <h1 class="text-3xl font-bold tracking-widest glow-text">S.A.G.E.</h1>
+                                                                        </header>
+                                                                            <div class="flex-1 flex items-center justify-center w-full my-6">
+                                                                                    <div id="sage-core" class="sage-ring">
+                                                                                                <span id="core-status" class="block text-sm font-bold tracking-wider text-[#00aaff]">STANDBY</span>
+                                                                                                        </div>
+                                                                                                            </div>
+                                                                                                                <div class="terminal w-full max-w-md h-64 rounded-lg p-3 overflow-y-auto flex flex-col justify-end mb-4">
+                                                                                                                        <div id="log-container" class="text-xs space-y-2">> System Ready.</div>
+                                                                                                                            </div>
+                                                                                                                            </body>
+                                                                                                                            </html>
+                                                                                                                            
